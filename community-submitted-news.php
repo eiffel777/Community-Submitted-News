@@ -25,23 +25,35 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+if (!function_exists('add_action')){
+    require_once("../../../wp-config.php");
+}
 
-
+add_shortcode('csn_news_form','csn_show_form');
 add_action('admin_menu', 'csn_plugin_menu');
 add_action('wp_head', 'csn_head');
 add_action('admin_head', 'csn_head');
+add_action('init', 'init_method');
 register_activation_hook(__FILE__,'csn_install_news');
 
-switch($_SERVER['REQUEST_METHOD']){
-    case isset($_POST['csn_save']):
-        csn_update_news($_POST);
-        break;
-    case isset($_POST['csn_publish']):
-        csn_publish_story($_GET['id']);
-        break;
-    case isset($_POST['csn_captcha_code']):
-        csn_add_news($_POST);
-        break;
+$func = 'csn_'.$_POST['action'].'_story';
+
+if(function_exists($func)){
+   call_user_func($func, $_POST['id']);
+}
+else{
+    switch($_SERVER['REQUEST_METHOD']){
+        case isset($_POST['csn_save']):
+            csn_update_news($_POST);
+            break;
+        case isset($_POST['csn_captcha_code']):
+            csn_add_news($_POST);
+            break;
+    }
+}
+
+function init_method(){
+    wp_enqueue_script('jquery');
 }
 
 function csn_plugin_menu(){
@@ -119,10 +131,12 @@ function csn_view_story($id){
  */
 function csn_head(){
     ?>
+        <script type="text/javascript" src="<?php echo get_option('siteurl').'/wp-content/plugins/community-submitted-news/csn_js.js' ?>"> </script>
         <style type='text/css'>
             @import "<?php echo get_option('siteurl').'/wp-content/plugins/community-submitted-news/csn_style.css' ?>";
         </style>
     <?
+    
 }
 
 /**
@@ -136,12 +150,6 @@ function csn_read_news(){
             case 'csn_view':
                 csn_view_story($_GET['id']);
                 break;
-            case 'csn_publish':
-                csn_publish_story($_GET['id']);
-                break;
-            case 'csn_remove':
-               csn_delete_story($_GET['id']);
-               break;
         }
     }
     else{
@@ -152,17 +160,18 @@ function csn_read_news(){
         $news = $wpdb->get_results($query);
         $page = $_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'];
 
+        echo '<div id=csn_msg></div>';
         echo '<table class="widefat post fixed" id = "csn">';
         echo '<thead>';
         echo '<tr><th class="name">Name</th><th class="title">Title</th><th class="story">Story</th><th class="action">View Story</th><th class="action">Publish Story</th><th class="action">Remove Story</th></tr><tbody>';
         foreach($news as $story){
-            echo '<tr>';
+            echo '<tr class="row">';
             echo '<td>'.$story->name.'</td>';
             echo '<td>'.$story->title.'</td>';
             echo '<td>'.$story->story.'</td>';
             echo '<td><a href="http://'.$page.'&action=csn_view&id='.$story->id.'">View</a></td>';
-            echo '<td><a href="http://'.$page.'&action=csn_publish&id='.$story->id.'">Publish</a></td>';
-            echo '<td><a href="http://'.$page.'&action=csn_remove&id='.$story->id.'">Remove</a></td>';
+            echo '<td><a class="publish" id="'.$story->id.'" href="http://'.$page.'&action=csn_publish&id='.$story->id.'">Publish</a></td>';
+            echo '<td><a class="delete" id="'.$story->id.'" href="http://'.$page.'&action=csn_remove&id='.$story->id.'">Remove</a></td>';
             echo '</tr>';
         }
         echo '</tbody></table>';
@@ -177,11 +186,11 @@ function csn_read_news(){
  */
 function csn_add_news($csn){
     global $wpdb;
-    require (ABSPATH . WPINC . '/pluggable.php');
-    include_once 'wp-content/plugins/community-submitted-news/securimage/securimage.php';
+    include_once ABSPATH.'wp-content/plugins/community-submitted-news/securimage/securimage.php';
+
     $securimage = new Securimage();
     if( !$securimage->check($_POST['csn_captcha_code']) ) {
-        die('The code you entered was incorrect.  Go back and try again.');
+        die('The captcha text you entered was incorrect.  Please correct it.');
     }
     else{
         $tablename = $wpdb->prefix.'csn_submission';
@@ -257,55 +266,34 @@ function csn_install_news(){
  */
 function csn_show_form(){
     $uri = explode('/', $_SERVER['REQUEST_URI']);
-    $new_uri = 'http://'.$_SERVER['SERVER_NAME'].'/'.$uri[1].'/?form';
+    $new_uri = 'http://'.$_SERVER['SERVER_NAME'].'/'.$uri[1].'/wp-content/plugins/community-submitted-news/community-submitted-news.php';
     $image_uri = 'http://'.$_SERVER['SERVER_NAME'].'/'.$uri[1].'/';
+    include_once'wp-content/plugins/search-engine/Spider.class.php';
+    $spider = new Search_Engine_Spider();
+    $mime = $spider->se_accepted_mime_type('http://buffalonews.com/');
+    var_dump($mime);
     ?>
     <style type='text/css'>
         label{float:left}
     </style>
-    
+        <div id="csn_alert"></div>
+        <div id="csn_user_submission">
     <form name='csn_user_news' id='csn_form' action='<?php echo $new_uri ?>' method="post">
-        <?php
-        if($_SERVER['argv'][0] == 'form'){
-            echo '<p>Thank you for submitting your story</p>';
-        }
-        ?>
         <?php
         if(function_exists('wp_nonce_field')){
             wp_nonce_field('community_sumbitted_news_add_news');
         }
         ?>
-        <ul>
-            <li>
-                <label for='csn_user_name'>Your Name:</label>
-                <input type='text' name='csn_user_name' id='csn_user_name'/>
-            </li>
-            <li>
-                <label for='csn_user_email'>Your Email:</label>
-                <input type='text' name='csn_user_email' id='csn_user_email'/>
-            </li>
-            <li>
-                <label for='csn_user_title'>Story Title:</label>
-                <input type='text' name='csn_user_title' id='csn_user_title'/>
-            </li>
-            <li>
-                <label for='csn_user_story'>News Story:</label>
-                <textarea name='csn_user_story' rows='10' cols='30' id='csn_user_story'></textarea>
-            </li>
-            <li>
-                <img id="captcha" src="<?=get_option('siteurl')?>/wp-content/plugins/community-submitted-news/securimage/securimage_show.php" alt="CAPTCHA Image" />
-                <a href="#" onclick="document.getElementById('captcha').src = '<?=get_option('siteurl')?>/wp-content/plugins/community-submitted-news/securimage/securimage_show.php?' + Math.random(); return false">Reload Image</a>
-
-            </li>
-            <li>
-                <label for='csn_captcha_code'>Captcha text:  </label>
-                <input type="text" name="csn_captcha_code" id='csn_captcha_code' size="10" maxlength="6" />
-            </li>
-            <li>
-                <button type='submit'>Submit Story</button>
-            </li>
-        </ul>
+            <p>Your Name: <input type='text' name='csn_user_name' id='csn_user_name'/></p>
+            <p>Your Email: <input type='text' name='csn_user_email' id='csn_user_email'/></p>
+            <p>Story Title: <input length="30" type='text' name='csn_user_title' id='csn_user_title'/></p>
+            <p><span>News Story:  </span><textarea name='csn_user_story' rows='10' cols='30' id='csn_user_story'></textarea></p>
+            <p><img id="captcha" src="<?=get_option('siteurl')?>/wp-content/plugins/community-submitted-news/securimage/securimage_show.php" alt="CAPTCHA Image" /></p>
+            <p><a href="#" onclick="document.getElementById('captcha').src = '<?=get_option('siteurl')?>/wp-content/plugins/community-submitted-news/securimage/securimage_show.php?' + Math.random(); return false">Reload Image</a></p>
+            <p>Captcha text: <input type="text" name="csn_captcha_code" id='csn_captcha_code' size="10" maxlength="6" /></p>
+            <p><button type='submit'>Submit Story</button></p>
     </form>
+        </div>
     <?php
 }
 
@@ -336,11 +324,11 @@ function csn_publish_story($id){
         $wpdb->update($wpdb->prefix.'csn_submission', array('approve' => 1), array('id' => $id));
         csn_email_submitter($id);
         if($_GET['action'] != 'csn_view'){
-            echo '<p>The story has been published. You may now edit it from Edit Posts page or return to the <a href="'.$_SERVER["HTTP_REFERER"].'">previous page</a></p>';
+            echo 'The story has been published. You may now edit it from Edit Posts page';
         }
     }
     else{
-        echo '<p>Something has not gone well. Please return to the <a href="'.$_SERVER["HTTP_REFERER"].'">previous page</a> and try again.</p>';
+        echo 'Something has not gone well. Please try again';
     }
 }
 
@@ -351,7 +339,8 @@ function csn_publish_story($id){
  */
 function csn_delete_story($id){
     global $wpdb;
-    
+    echo 'all good deleted';
+    return;
     csn_email_submitter($id, 'delete');
     $wpdb->query($wpdb->prepare('DELETE FROM `'.$wpdb->prefix.'csn_submission` WHERE id = %d', $id));
     

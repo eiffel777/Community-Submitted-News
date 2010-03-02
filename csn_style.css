@@ -27,6 +27,11 @@
 #csn th.action{
     min-width: 10%;
 }
+#csn_msg{
+    width: 80%;
+    background-color: yellow;
+    margin-top: 3px;
+}
 #csn_submission_content{
     width: 65%;
 }
@@ -51,16 +56,24 @@
     margin-top: 3px;
     margin-bottom: 5px;
 }
-#csn_user_story, #csn_user_name, #csn_captcha_code{
-    margin-left: 10px;
+#csn_form{
+    text-align: left;
+    width: 70%
 }
-#csn_user_email{
-    margin-left: 12px;
+#csn_captcha_code{
+    width: 220px !important;
 }
-#csn_user_title{
-    margin-left: 15px;
+#csn_form input{
+    float: right;
+    width: 234px;
 }
 #csn_form li{
-    list-style-type: none;
+    list-style: none;
     margin-top: 5px;
+}
+#csn_user_submission span{
+    vertical-align: top;
+}
+#csn_form li:before{
+    content: none;
 }
