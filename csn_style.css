@@ -1,0 +1,66 @@
+/* 
+    Document   : csn_style.css
+    Created on : Apr 5, 2009, 1:51:12 PM
+    Author     : Greg Dean
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+/* 
+   TODO customize this sample style
+   Syntax recommendation http://www.w3.org/TR/REC-CSS2/
+*/
+
+#csn {
+    width: 80%;
+    margin-top: 10px;
+}
+#csn th{
+    text-align: left;
+}
+#csn th.name{
+    min-width: 10%;
+}
+#csn th.story{
+    width: 50%;
+}
+#csn th.action{
+    min-width: 10%;
+}
+#csn_submission_content{
+    width: 65%;
+}
+#csn_submission_details{
+    width: 65%;
+    margin: 10px 0px 10px 5px;
+}
+#csn_submission_details input{
+    padding: 5px;
+    margin:0 5px;
+}
+#major-publishing-actions input{
+    padding: 0px;
+    margin: 0px;
+    float: none;
+}
+#csn_submission_details label{
+    padding: 5px;
+    float:left;
+}
+#csn_submission_details fieldset{
+    margin-top: 3px;
+    margin-bottom: 5px;
+}
+#csn_user_story, #csn_user_name, #csn_captcha_code{
+    margin-left: 10px;
+}
+#csn_user_email{
+    margin-left: 12px;
+}
+#csn_user_title{
+    margin-left: 15px;
+}
+#csn_form li{
+    list-style-type: none;
+    margin-top: 5px;
+}
