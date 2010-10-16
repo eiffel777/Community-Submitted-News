@@ -2,8 +2,8 @@
 Contributors: eiffel777
 Tags: community, news, usersubmitted, content, submission, user news
 Requires at least: 2.5
-Tested up to: 2.8.2
-Stable tag: 1.0.6
+Tested up to: 2.9.2
+Stable tag: 1.1.2
 
 This plugin allows you to let people submit stories/posts to your site and lets you control what is displayed
 
@@ -17,12 +17,12 @@ be published. All articles are initially put in their own category for easy sepe
 Community Submitted News has the following features
 
 * Moderation Panel - Submissions are not displayed until you allow them
-* Email notification to submitters of approval or denial of submission
+* Add submission form to single page or post
 * Capthca Image
 * Seperate category for all submissions
 * Edit submissions before and after approval
 
-Leave comments/suggestion for this plugin [here](http://studioslice.com/2009/08/01/announcing-community-submitted-news/). I would love to hear from you.
+Leave comments/suggestion for this plugin [here](http://studioslice.com/2010/04/18/community-submitted-news-ver-11-is-out/). I would love to hear from you.
 
 == Installation ==
 
@@ -30,12 +30,25 @@ This section describes how to install the plugin and get it working.
 
 1. Upload `Community Submitted News` folder to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Place `<?php csn_show_form() ?>` in your templates
+3. Place `[csn_news_form /]` in the page or post you want the form to show up in using the WordPress editor in the admin area.
 4. Enjoy!
 
 == Frequently Asked Questions ==
 
 == Changelog ==
+= 1.1.2 =
+* Made spelling changes
+* Fixed error with check_admin_referer not loading for some people
+
+= 1.1.1 =
+* Made spelling changes
+* Fixed error with check_admin_referer not loading for some people.
+
+= 1.1 =
+* Added ajax form submission
+* Added shortcodes to allow for form to show on single page or post
+* Updated for new 2.9 series of WordPress
+
 = 1.0.6 = 
 * Some securimage files were missing in the last two releases. Added them in this one
 
