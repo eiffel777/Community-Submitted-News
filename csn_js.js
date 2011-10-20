@@ -14,7 +14,7 @@ jQuery(document).ready(function(){
             },
             function(e){
                 if(e.length != 0){
-                    jQuery('#csn_user_submission').before(e);
+                    jQuery('#csn_alert').html(e);
                 }
                 else{
                     jQuery('#csn_form').html('<p>Thank your for your submission. Click <a href="'+window.location.href+'" id="csn_reload_form">here</a> to sumbit another story</p>');
@@ -23,13 +23,13 @@ jQuery(document).ready(function(){
             }
         );
     });
+
     jQuery('#csn_form').ajaxError(function(e, xhr, settings, exception){
         alert(xhr);
     });
 
     jQuery('a#csn_reload_form').click(function(event){
         event.preventDefault();
-        alert(';stiuf');
         jQuery('#csn_form').text('[csn_news_form /]')
     });
 
